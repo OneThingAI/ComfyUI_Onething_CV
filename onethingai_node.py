@@ -16,7 +16,7 @@ class OneThingAIImageToTextNode:
             "required": {
                 "image": ("IMAGE",),
                 "api_key": ("STRING", {"default": "", "multiline": False}),
-                "model": ("STRING", {"default": "gpt4o", "multiline": False}),
+                "model": ("STRING", {"default": "gpt-4o", "multiline": False}),
                 "retries": ("INT", {"default": 3, "min": 0, "max": 5}),
                 "timeout": ("INT", {"default": 20, "min": 5, "max": 100}),
                 "max_tokens": ("INT", {"default": 500, "min": 100, "max": 10000, "step": 100}),
