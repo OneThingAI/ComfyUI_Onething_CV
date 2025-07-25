@@ -17,6 +17,8 @@ class OneThingAIImageToTextNode:
                 "image": ("IMAGE",),
                 "api_key": ("STRING", {"default": "", "multiline": False}),
                 "model": ("STRING", {"default": "gpt-4o", "multiline": False}),
+                "system_prompt": ("STRING", {"default": "", "multiline": True}),
+                "user_content": ("STRING", {"default": "Please describe this image in detail.", "multiline": True}),
                 "retries": ("INT", {"default": 3, "min": 0, "max": 5}),
                 "timeout": ("INT", {"default": 20, "min": 5, "max": 100}),
                 "max_tokens": ("INT", {"default": 500, "min": 100, "max": 10000, "step": 100}),
@@ -27,7 +29,7 @@ class OneThingAIImageToTextNode:
     FUNCTION = "describe_image"
     CATEGORY = "OneThingAI/CV"
 
-    def describe_image(self, image, api_key, model, retries, timeout, max_tokens):
+    def describe_image(self, image, api_key, model, system_prompt, user_content, retries, timeout, max_tokens):
         if not api_key:
             raise ValueError("API key is required")
 
@@ -54,24 +56,35 @@ class OneThingAIImageToTextNode:
             "Authorization": f"Bearer {api_key}"
         }
 
-        payload = {
-            "messages": [
+        # Prepare messages list
+        messages = []
+        
+        # Add system message if provided
+        if system_prompt:
+            messages.append({
+                "role": "system",
+                "content": system_prompt
+            })
+
+        # Add user message with content and image
+        messages.append({
+            "role": "user",
+            "content": [
                 {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Please describe this image in detail."
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/png;base64,{img_str}"
-                            }
-                        }
-                    ]
+                    "type": "text",
+                    "text": user_content
+                },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/png;base64,{img_str}"
+                    }
                 }
-            ],
+            ]
+        })
+
+        payload = {
+            "messages": messages,
             "model": model,
             "max_tokens": max_tokens
         }
